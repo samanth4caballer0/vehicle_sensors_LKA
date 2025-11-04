@@ -5,9 +5,9 @@ from lane_fit import sliding_window_fit
 from temporal import temporal_smooth
 from overlay import draw_overlay
 
-VIDEO_PATH = os.environ.get("VIDEO", "data/test_video.mp4")
-OUT_VIDEO  = "outputs/annotated.mp4"
-OUT_CSV    = "outputs/per_frame.csv"
+VIDEO_PATH = os.environ.get("VIDEO", "data/night.mp4")
+OUT_VIDEO  = "outputs/night.mp4"
+OUT_CSV    = "outputs/per_frame_night.csv"
 
 def ensure_dirs():
     os.makedirs("outputs", exist_ok=True)
@@ -15,6 +15,10 @@ def ensure_dirs():
 def run():
     ensure_dirs()
     cap = cv2.VideoCapture(VIDEO_PATH)
+    # skip first video frame
+    cap = cv2.VideoCapture(VIDEO_PATH)
+    
+    
     if not cap.isOpened():
         raise RuntimeError(f"Cannot open video: {VIDEO_PATH}")
 
@@ -51,7 +55,7 @@ def run():
         fid += 1
 
     cap.release(); writer.release(); csv_f.close()
-    print("✅ Done. See outputs/annotated.mp4 and outputs/per_frame.csv")
+    print("✅ Done. See outputs/annotated1.mp4 and outputs/per_frame.csv")
 
 if __name__ == "__main__":
     run()

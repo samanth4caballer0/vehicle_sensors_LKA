@@ -79,3 +79,5 @@ def sliding_window_fit(binary_mask, prior=None):
         left_flag=left_flag, right_flag=right_flag,
         lat_offset=lat_offset_m
     )
+
+
