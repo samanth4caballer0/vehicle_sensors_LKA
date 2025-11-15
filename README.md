@@ -51,22 +51,52 @@ The system uses a clean, modular pipeline implemented across several Python file
 
 ## **Pipeline Flowchart**
 
+```mermaid
+flowchart TD
+    I[Input Frame]@{shape: lean-l}
+    A[1. Preprocess (color → grayscale)]
+    B[2. Edge Detection (Canny)]
+    C[3. Apply ROI Mask (triangle on road)]
+    D[4. Detect Hough Lines]
+    E[5. Classify Lines (left/right)]
+    F[6. Estimate Lane State (confidence, flags)]
+    G[7. Temporal Smoothing]
+    H[8. Final Overlay (HUD + lane polylines)]
+    O[Output Frame + CSV]
+
+    I c1@--> A c2@--> B c3@--> C c4@--> D
+    D c5@--> E c6@--> F c7@--> G
+    G c8@--> H c9@--> O
+
+    c1@{ animation: slow }
+    c2@{ animation: slow }
+    c3@{ animation: slow }
+    c4@{ animation: slow }
+    c5@{ animation: slow }
+    c6@{ animation: slow }
+    c7@{ animation: slow }
+    c8@{ animation: slow }
+    c9@{ animation: slow }
+```
+*Fig. 1: Flowchart Diagram of the Detection Pipeline*
+## **Pipeline Flowchart**
+
 
 ```mermaid
 flowchart TD
-  I[Input Frame]@{shape: lean-l}
-  A[1. Preprocess (color → grayscale)]
-  B[2. Edge Detection (Canny)]
-  C[3. Apply ROI Mask (triangle on road)]
-  D[4. Detect Hough Lines]
-  E[5. Classify Lines (left/right)]
-  F[6. Estimate Lane State (confidence, flags)]
-  G[7. Temporal Smoothing]
-  H[8. Final Overlay (HUD + lane polylines)]
-  O[Output Frame + CSV]
+I[Input Frame]
+A[1. Preprocess (color to grayscale)]
+B[2. Edge Detection (Canny)]
+C[3. Apply ROI Mask (triangle on road)]
+D[4. Detect Hough Lines]
+E[5. Classify Lines (left/right)]
+F[6. Estimate Lane State (confidence, flags)]
+G[7. Temporal Smoothing]
+H[8. Final Overlay (HUD + lane polylines)]
+O[Output Frame + CSV]
 
 
-  I --> A --> B --> C --> D --> E --> F --> G --> H --> O
+I --> A --> B --> C --> D --> E --> F --> G --> H --> O
 ```
 
 
