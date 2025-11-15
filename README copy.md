@@ -43,43 +43,37 @@ The implementation focuses on **explainable, classical CV techniques** without d
 
 ---
 
-## 2 - Lane Detection Pipeline
+# 2 – Lane Detection Pipeline
 
-The detection pipline follows a linear approach, with the exception of a Polynomial History Buffer which is used for smoothing the line polynomials.
-Find below a flow chart of process. Each individual step is explained in detail further below.
+
+The system uses a clean, modular pipeline implemented across several Python files.
+
+
+## **Pipeline Flowchart**
+
 
 ```mermaid
 flowchart TD
-    I[Input Frame]@{shape: lean-l}
-    A[1. Preprocess]
-    B[2. Edge Detection]
-    C[3. Apply ROI Mask]
-    D[4. Detect Hough Lines]
-    E[5. Classify Lines]
-    F[6. Build Lane Masks]
-    G[7. Fit Polynomials]
-    H[8. Temporal Smoothing]
-    History[Polynomial History]@{shape: procs}
-    O[Output Frame]@{shape: lean-r}
+I[Input Frame]@{shape: lean-l}
+A[1. Preprocess (color → grayscale)]
+B[2. Edge Detection (Canny)]
+C[3. Apply ROI Mask (triangle on road)]
+D[4. Detect Hough Lines]
+E[5. Classify Lines (left/right)]
+F[6. Estimate Lane State (confidence, flags)]
+G[7. Temporal Smoothing]
+H[8. Final Overlay (HUD + lane polylines)]
+O[Output Frame + CSV]
 
-    I c1@--> A c2@--> B c3@--> C c4@--> D
-    D c5@--> E c6@--> F c7@--> G
-    G c8@--> H c9@--> O
-    G c10@--> History c11@--> H
 
-    c1@{ animation: slow }
-    c2@{ animation: slow }
-    c3@{ animation: slow }
-    c4@{ animation: slow }
-    c5@{ animation: slow }
-    c6@{ animation: slow }
-    c7@{ animation: slow }
-    c8@{ animation: slow }
-    c10@{ animation: slow }
-    c11@{ animation: slow }
+I --> A --> B --> C --> D --> E --> F --> G --> H --> O
 ```
-*Fig. 1: Flowchart Diagram of the Detection Pipeline*
 
+
+*Fig. 1 – Lane Detection Pipeline*
+
+
+---
 ## Step-by-Step Pipeline Description
 
 ### **Step 1 – Preprocess**
