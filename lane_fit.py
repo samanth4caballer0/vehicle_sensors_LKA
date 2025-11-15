@@ -38,7 +38,7 @@ def _average_slope_intercept(image, lines):
 
     return left_line, right_line, left_conf, right_conf
 
-def sliding_window_fit(binary_mask, prior=None):
+def hough_line_fit(binary_mask, prior=None):
     """
     Hough-based lane extraction replacing sliding windows.
     Returns dict with 'left_pts'/'right_pts' (2-point polylines), confidences, flags, and lat_offset (approx).

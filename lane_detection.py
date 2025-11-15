@@ -1,4 +1,3 @@
-
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -57,20 +56,7 @@ def region_of_interest(image):
     masked_image = cv2.bitwise_and(image, mask)
     return masked_image
 
-# image = cv2.imread('test_image.jpg')
-# lane_image = np.copy(image) #color image
-# canny = canny(lane_image)
-# cropped_image = region_of_interest(canny) #triangle region b&w
-
-# lines = cv2.HoughLinesP(cropped_image, 2, np.pi/180, 100, np.array([]), minLineLength=40, maxLineGap=5)
-# averaged_lines = average_slope_intercept(lane_image, lines)
-
-# line_image = display_lines(lane_image, averaged_lines)
-# combo_image = cv2.addWeighted(lane_image, 0.8, line_image, 1, 1) #weighted sum of arrays of color image and line image
-# cv2.imshow('result', combo_image)
-# cv2.waitKey(0)
-
-cap = cv2.VideoCapture("./data/test_video.mp4")
+cap = cv2.VideoCapture("./data/highway.mp4")
 while cap.isOpened():
     ret, frame = cap.read() #decode frame by frame
     if not ret:
@@ -86,11 +72,6 @@ while cap.isOpened():
         break
 cap.release()
 cv2.destroyAllWindows()
-
-# plt.imshow('result', region_of_interest(canny))  
-# cv2.waitKey(0)
-# plt.imshow(canny)
-# plt.show()
 
 
 #gradient measures changes in brightnes over adjacent pixels (0-255).
