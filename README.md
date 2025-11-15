@@ -1,7 +1,130 @@
+# Lane Keep Assist (LKA) — Classical Computer Vision Lane Detection & Annotation
 
-# RESULTS
+**Author:** *[Your Name]*  
+**Course:** ADAS – Lane Keeping Assist Implementation  
+**Language:** Python (OpenCV)
 
-DWKLEWFJIWWFHIW
+A modular, classical-computer-vision-based LKA perception system that detects left and right lane boundaries from video, overlays them on the input frames, and logs full per-frame metrics. The system focuses on **interpretability**, **classical CV techniques**, **temporal smoothing**, and **evaluation-ready outputs**, following the ADAS LKA project specification.
+
+---
+
+## Table of Contents
+
+[1 – Project Goals](#1--project-goals)  
+[2 – Lane Detection Pipeline](#2--lane-detection-pipeline)  
+&nbsp;&nbsp;&nbsp;• Pipeline Flowchart  
+&nbsp;&nbsp;&nbsp;• Step-by-step description  
+[3 – Results](#3--results)  
+[4 – Design Choices & Limitations](#4--design-choices--limitations)  
+[5 – Build & Run Instructions](#5--build--run-instructions)  
+[6 – Project Structure](#6--project-structure)
+
+---
+
+# 1 – Project Goals
+
+The goal of this project is to build a **classical computer vision Lane Keep Assist (LKA) perception module** that:
+
+1. Detects **left** and **right lane boundaries** for every video frame.  
+2. Determines if each side is **detected (YES/NO)** based on confidence values.  
+3. Produces an **annotated output video** with overlaid detected lane lines and a HUD.  
+4. Produces a **per-frame CSV file** containing:  
+   - `left_detected`, `right_detected`  
+   - `left_conf`, `right_conf`  
+   - `lat_offset_m` (approx. ego-lane offset)  
+5. Computes **quality metrics** including:  
+   - Side detection accuracy  
+   - Curve quality (MAE or IoU)  
+   - Temporal stability of lateral offset  
+   - Latency per frame  
+6. Optionally outputs a **multi-panel debug video** showing each stage of the pipeline.
+
+The implementation focuses on **explainable, classical CV techniques** without deep learning, following the recommended LKA workflow for a robust baseline system.
+
+---
+
+# 2 – Lane Detection Pipeline
+
+
+The system uses a clean, modular pipeline implemented across several Python files.
+
+
+## **Pipeline Flowchart**
+
+
+```mermaid
+flowchart TD
+  I[Input Frame]@{shape: lean-l}
+  A[1. Preprocess (color → grayscale)]
+  B[2. Edge Detection (Canny)]
+  C[3. Apply ROI Mask (triangle on road)]
+  D[4. Detect Hough Lines]
+  E[5. Classify Lines (left/right)]
+  F[6. Estimate Lane State (confidence, flags)]
+  G[7. Temporal Smoothing]
+  H[8. Final Overlay (HUD + lane polylines)]
+  O[Output Frame + CSV]
+
+
+  I --> A --> B --> C --> D --> E --> F --> G --> H --> O
+```
+
+
+*Fig. 1 – Lane Detection Pipeline*
+
+
+---
+## Step-by-Step Pipeline Description
+
+### **Step 1 – Preprocess**
+- Convert the BGR frame to **grayscale**.  
+- Apply Gaussian blur for stability.  
+This prepares the frame for edge detection.
+
+### **Step 2 – Edge Detection (Canny)**
+- Detect edges using **Canny Edge Detection** (50–150 threshold).  
+- Output is a binary map of strong edges.
+
+### **Step 3 – Apply ROI Mask**
+- Use a triangular mask covering the **road region**.  
+- Remove pixels outside this area.  
+This focuses the detector on the driving lane.
+
+### **Step 4 – Detect Hough Lines**
+- Apply **HoughLinesP** to detect short line segments representing lane markings.  
+- Segments are collected for classification.
+
+### **Step 5 – Classify Lines (Left vs. Right)**
+- Compute slopes `m` for each segment.  
+- Negative slope → **left lane**; Positive slope → **right lane**.  
+- Average segments to obtain one representative line per lane side.
+
+### **Step 6 – Estimate Lane State**
+- Compute **confidence** for each side based on segment consistency.  
+- Compute `left_flag` and `right_flag` from confidence threshold (0.6).  
+- Estimate **lateral offset** by comparing the lane center to the image center.
+
+### **Step 7 – Temporal Smoothing**
+- Apply **exponential smoothing** across frames to stabilize:  
+  - Line endpoints  
+  - Confidences  
+  - Lateral offset  
+- Reduces flickering and improves continuity.
+
+### **Step 8 – Final Overlay and HUD**
+- Draw left lane in **green**, right lane in **blue** if detected.  
+- Otherwise draw **gray dashed** fallback lines.  
+- Add HUD showing:  
+  `Left: YES/NO | Right: YES/NO | Conf: avg_conf`
+
+### **Outputs**
+- **Video:** annotated lane detection output (`outputs/*.mp4`).  
+- **CSV:** per-frame metrics (`outputs/per_frame*.csv`).  
+- **Debug video:** multi-panel visualization (optional via metrics module).
+
+---
+
+# 3 – Results
 
 ## Night performance
 
@@ -11,129 +134,92 @@ DWKLEWFJIWWFHIW
 
 ![Highway day demo](outputs/highway.gif)
 
-LALALALLAb
+### ✔ Working Features
+- Stable lane detection using **Canny + ROI + HoughLinesP**.  
+- Smooth temporal behavior under moderate noise.  
+- Accurate detection flags (YES/NO) based on confidence.  
+- Lateral offset estimation for tracking vehicle within lane.  
+- Clear HUD and visual overlays.
 
-- RUN THE FOLLOWING COMMAND:
-# Lane Keep Assist (LKA) — Python Video Lane Detection & Annotation
+### ✔ Debug Mosaic Video
+A multi-panel video can be generated using `metrics.py`, showing:  
+`[input | preprocess | edges] / [ROI | Hough | classified]`
 
-A compact, classical computer-vision lane detector implemented in Python with OpenCV and NumPy. The pipeline reads a driving video, detects left/right lane boundaries using Canny + Hough, fits quadratic polynomials, applies temporal smoothing, overlays the detected lanes on frames, and writes per-frame detection metrics to CSV. The repository also includes debug utilities that produce a 2x3 mosaic debug video showing intermediate pipeline stages.
-
-## Table of Contents
-
-- [Project Goals](#project-goals)
-- [Pipeline Overview](#pipeline-overview)
-- [Quick Start](#quick-start)
-- [Outputs & Results](#outputs--results)
-- [Design Choices & Limitations](#design-choices--limitations)
-- [File Layout (what each file does)](#file-layout)
-- [Development / Testing Tips](#development--testing-tips)
-
-## Project Goals
-
-This project provides a simple, interpretable lane-detection pipeline suitable for experiments and teaching. Goals:
-
-- Detect left/right lane boundaries per frame and estimate a confidence for each side.
-- Visualize detections by overlaying polylines and a small HUD on top of the original video.
-- Produce an annotated output video and a CSV with per-frame detection metrics.
-- Provide debug artifacts (mosaic video) to inspect intermediate stages.
-
-## Pipeline Overview
-
-High-level stages (implemented across `preprocess.py`, `warp.py`, `lane_fit.py`, `temporal.py`, `overlay.py`):
-
-1. Preprocess / Thresholding — blur + Canny or HLS+Sobel depending on mode.
-2. Region-of-interest (ROI) mask — keep the triangular road area.
-3. Hough line detection — find line segments in the ROI.
-4. Classify / group lines to left/right, build lane pixel sets.
-5. Fit quadratic polynomials x(y) = a*y^2 + b*y + c for each side.
-6. Temporal smoothing — smooth polynomial coefficients across frames.
-7. Overlay — render solid/dashed polylines and a small HUD showing detection and confidence.
-
-Diagram (conceptual):
-
-```text
-Input → Preprocess → Edges → ROI → Hough → Classify → Fit → Temporal → Overlay → Output
-```
-
-## Quick Start
-
-1. Install dependencies (recommended in a virtualenv):
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-Minimum `requirements.txt`:
-
-```
-opencv-python
-numpy
-pandas
-```
-
-2. Run the main pipeline on the example video (press `c` to quit preview early):
-
-```bash
-VIDEO=data/highway.mp4 python main.py
-```
-
-Environment variables you can use:
-
-- `VIDEO`: path to input video (defaults to `data/highway.mp4`).
-
-The script produces: `outputs/annotated.mp4`, `outputs/per_frame_annotated.csv`, and `outputs/debug_annotated.mp4`.
-
-## Outputs & Results
-
-- `outputs/annotated.mp4` — final video with overlaid lane polylines and HUD.
-- `outputs/per_frame_annotated.csv` — per-frame rows: `frame_id,left_detected,right_detected,left_conf,right_conf,lat_offset_m`.
-- `outputs/debug_annotated.mp4` — 2×3 mosaic debug video showing: input, preprocess, edges, ROI, Hough lines debug, and final classified overlay.
-
-Examples / GIFs: if you add `.gif` previews under `assets/` or `outputs/` you can embed them into this README using Markdown images, e.g. `![Night demo](outputs/night.gif)`.
-
-## Design Choices & Limitations
-
-- Approach: classical CV (Canny + Hough + polynomial fit). This is lightweight and interpretable but less robust than learning-based methods in challenging conditions (rain, heavy glare, worn lane paint).
-- Performance: the pipeline is designed for simplicity rather than maximum speed. Real-time behavior depends on input resolution and CPU speed. The pipeline writes an annotated video and debug mosaic which may slow processing.
-- Failure modes: misclassification of roadside edges as lanes, shaky polylines at night or low-contrast scenes. The temporal smoothing in `temporal.py` mitigates short dropouts.
-
-## File Layout
-
-- `main.py` — Entry point. Orchestrates reading frames, preprocessing, warping, lane detection, smoothing, overlay, and writes outputs (annotated video, CSV, debug video). Also shows a live preview window (press `c` to stop early).
-- `preprocess.py` — Image preprocessing helpers: `detect_edges()` (blur + Canny), `region_of_interest()` (triangular mask), and `threshold_hls_sobel()` (an alternate HLS+Sobel path). This module returns single-channel masks used downstream.
-- `warp.py` — (IPM) functions to warp to/from bird's-eye view. Used by the fitter when a top-down representation is helpful. In the baseline it's identity or simple homography utilities.
-- `lane_fit.py` — Core detection/fitting logic. Runs `HoughLinesP` on edge masks, groups line segments per side, and fits quadratic polynomials x(y)=a*y^2+b*y+c. Returns per-side confidence and estimates lateral offset.
-- `temporal.py` — Temporal smoothing utilities to stabilize polynomial coefficients and confidences across frames.
-- `overlay.py` — Visualization: draws quadratic polylines, dashed fallbacks, and a small HUD showing detection flags and average confidence.
-- `metrics.py` — Metrics and debug utilities: computes detection accuracy (with GT), mask IoU, latency stats, and writes the 2×3 mosaic debug video (`write_pipeline_debug_video`).
-- `lane_detection.py` — Standalone demo script (single-file) that performs a simpler Hough-based lane detection flow and shows a live OpenCV preview (useful for interactive tinkering).
-- `lf_ignore.py` — Legacy or alternative helper functions; may contain duplicate helpers used for experimentation.
-- `data/` — Example input videos.
-- `outputs/` — Auto-created results and debug artifacts (annotated videos, CSVs, generated GIFs if you make them).
-- `calib/` — (optional) calibration data such as camera intrinsics or homography parameters used by `warp.py`.
-
-## Development & Testing Tips
-
-- To debug per-frame pipeline stages, `main.py` collects intermediate frames and writes the mosaic debug video `outputs/debug_annotated.mp4` (2×3 panels).
-- If a GIF is not rendering in the README, ensure the GIF file is committed to the repository and referenced outside of a Markdown code block.
-- If you run headless (no display), remove or guard calls to `cv2.imshow`/`cv2.destroyAllWindows()` or run with a virtual frame buffer (e.g., `xvfb-run`).
-- To speed up experiments, downscale input frames (modify capture resolution or add resizing in `main.py`).
-
-## Next steps you might want
-
-- Add a `requirements.txt` / `pyproject.toml` and a small `Makefile` or `run.sh` wrapper for common experiments.
-- Add unit tests for `metrics.py` to validate metric computations.
-- Add a CLI entry (argparse) to `main.py` so you can toggle debug output, stride, and preview options.
+Useful for analysis and report documentation.
 
 ---
 
-If you'd like, I can also:
+# 4 – Design Choices & Limitations
 
-- Add a `requirements.txt` and commit it.
-- Add a small CLI to `main.py` (`--no-preview`, `--stride`, `--out-dir`).
-- Commit this README and push to `origin` for you.
+### **Design Choices**
+- **Classical CV approach** for maximum interpretability.  
+- **Canny + ROI** to robustly isolate lane edges.  
+- **HoughLinesP** for straightforward lane segment detection.  
+- **Temporal smoothing** to minimize jitter.
 
-Which of these would you like me to do next?
+### **Limitations**
+- No Inverse Perspective Mapping (IPM) yet.  
+- ROI mask is fixed, not adaptive to curves.  
+- HoughLinesP struggles with:  
+  - rain, shadows, worn paint, heavy noise.  
+- Confidence model is basic.  
+- Only straight-line modeling (no polynomial curves).
+
+Despite this, the system meets all core LKA baseline requirements.
+
+---
+
+# 5 – Build & Run Instructions
+
+### **Requirements**
+```bash
+pip install opencv-python numpy pandas
+```
+
+### **Run the Lane Detection Pipeline**
+```bash
+python src/main.py
+```
+
+This will:  
+- Load `data/night.mp4`  
+- Process every frame  
+- Generate:  
+  - `outputs/night4.mp4`  
+  - `outputs/per_frame_night4.csv`
+
+### **Run Metrics**
+Example:
+```python
+from metrics import compute_detection_accuracy, temporal_stability
+```
+
+### **Generate Debug Mosaic Video**
+```python
+from metrics import write_pipeline_debug_video
+```
+
+---
+
+# 6 – Project Structure
+
+```
+LKA_project/
+├── data/                 # Input videos
+├── outputs/              # Output videos + CSV
+│   ├── night4.mp4
+│   └── per_frame_night4.csv
+├── src/
+│   ├── main.py           # Main processing loop
+│   ├── preprocess.py     # Canny + ROI mask
+│   ├── warp.py           # Identity warp / placeholder
+│   ├── lane_fit.py       # Hough line detection + classification
+│   ├── temporal.py       # Exponential smoothing
+│   ├── overlay.py        # Drawing + HUD
+│   └── metrics.py        # Metrics + debug video
+└── README.md             # This file
+```
+
+---
+
 
