@@ -1,6 +1,6 @@
 # Lane Keep Assist (LKA) — Classical Computer Vision Lane Detection & Annotation
 
-**Author:** *[Your Name]*  
+**Author:** *Samantha Caballero*  
 **Course:** ADAS – Lane Keeping Assist Implementation  
 **Language:** Python (OpenCV)
 
@@ -54,19 +54,21 @@ The system uses a clean, modular pipeline implemented across several Python file
 ```mermaid
 flowchart TD
     I[Input Frame]@{shape: lean-l}
-    A[1. Preprocess (color → grayscale)]
-    B[2. Edge Detection (Canny)]
-    C[3. Apply ROI Mask (triangle on road)]
+    A[1. Preprocess grayscale]
+    B[2. Edge Detection Canny]
+    C[3. Apply ROI Mask triangle on road]
     D[4. Detect Hough Lines]
-    E[5. Classify Lines (left/right)]
-    F[6. Estimate Lane State (confidence, flags)]
+    E[5. Classify Lines left/right]
+    F[6. Estimate Lane State confidence, flags]
     G[7. Temporal Smoothing]
-    H[8. Final Overlay (HUD + lane polylines)]
-    O[Output Frame + CSV]
+    History[Overlay HUD lane polylines]@{shape: procs}
+    O[Output Frame + CSV]@{shape: lean-r}
+
 
     I c1@--> A c2@--> B c3@--> C c4@--> D
     D c5@--> E c6@--> F c7@--> G
-    G c8@--> H c9@--> O
+    G c8@--> O
+    G c10@--> History c11@--> O
 
     c1@{ animation: slow }
     c2@{ animation: slow }
@@ -76,31 +78,11 @@ flowchart TD
     c6@{ animation: slow }
     c7@{ animation: slow }
     c8@{ animation: slow }
-    c9@{ animation: slow }
+    c10@{ animation: slow }
+    c11@{ animation: slow }
+
 ```
-*Fig. 1: Flowchart Diagram of the Detection Pipeline*
-## **Pipeline Flowchart**
-
-
-```mermaid
-flowchart TD
-I[Input Frame]
-A[1. Preprocess (color to grayscale)]
-B[2. Edge Detection (Canny)]
-C[3. Apply ROI Mask (triangle on road)]
-D[4. Detect Hough Lines]
-E[5. Classify Lines (left/right)]
-F[6. Estimate Lane State (confidence, flags)]
-G[7. Temporal Smoothing]
-H[8. Final Overlay (HUD + lane polylines)]
-O[Output Frame + CSV]
-
-
-I --> A --> B --> C --> D --> E --> F --> G --> H --> O
-```
-
-
-*Fig. 1 – Lane Detection Pipeline*
+*Fig. 1: Detection Pipeline Flowchart*
 
 
 ---
