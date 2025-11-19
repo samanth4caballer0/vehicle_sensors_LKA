@@ -131,7 +131,7 @@ def compute_latency(frame_times: List[float]) -> Dict[str, float]:
 
 
 # ============================================================
-# 5) MULTI-PANEL DEBUG VIDEO (like your screenshot)
+# 5) MULTI-PANEL DEBUG VIDEO 
 # ============================================================
 
 def _to_bgr(img: np.ndarray, size: tuple) -> np.ndarray:

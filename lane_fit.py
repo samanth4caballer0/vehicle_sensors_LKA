@@ -39,10 +39,7 @@ def _average_slope_intercept(image, lines):
     return left_line, right_line, left_conf, right_conf
 
 def hough_line_fit(binary_mask, prior=None):
-    """
-    Hough-based lane extraction replacing sliding windows.
-    Returns dict with 'left_pts'/'right_pts' (2-point polylines), confidences, flags, and lat_offset (approx).
-    """
+
     h, w = binary_mask.shape[:2]
     lines = cv2.HoughLinesP(binary_mask, rho=2, theta=np.pi/180, threshold=100,
                             minLineLength=40, maxLineGap=5)

@@ -1,10 +1,10 @@
-# Lane Keep Assist (LKA) — Classical Computer Vision Lane Detection & Annotation
+# Lane Keep Assist (LKA) 
 
 **Author:** *Samantha Caballero*  
-**Course:** ADAS – Lane Keeping Assist Implementation  
+ ADAS – Lane Keeping Assist Implementation  
 **Language:** Python (OpenCV)
 
-A modular, classical-computer-vision-based LKA perception system that detects left and right lane boundaries from video, overlays them on the input frames, and logs full per-frame metrics. The system focuses on **interpretability**, **classical CV techniques**, **temporal smoothing**, and **evaluation-ready outputs**, following the ADAS LKA project specification.
+A modular, classical-computer-vision-based LKA perception system that detects left and right lane boundaries from video, overlays them on the input frames, and logs full per-frame metrics. The system focuses on **interpretability**, **classical CV techniques**, **temporal smoothing**, and **evaluation-ready outputs**
 
 ---
 
@@ -37,9 +37,6 @@ The goal of this project is to build a **classical computer vision Lane Keep Ass
    - Curve quality (MAE or IoU)  
    - Temporal stability of lateral offset  
    - Latency per frame  
-6. Optionally outputs a **multi-panel debug video** showing each stage of the pipeline.
-
-The implementation focuses on **explainable, classical CV techniques** without deep learning, following the recommended LKA workflow for a robust baseline system.
 
 ---
 
@@ -89,7 +86,7 @@ flowchart TD
 ## Step-by-Step Pipeline Description
 
 ### **Step 1 – Preprocess**
-- Convert the BGR frame to **grayscale**.  
+- Convert the RGB frame to **grayscale**.  
 - Apply Gaussian blur for stability.  
 This prepares the frame for edge detection.
 
@@ -138,11 +135,11 @@ This focuses the detector on the driving lane.
 
 # 3 – Results
 
-## Night performance
+### Night performance
 
 ![Night demo](outputs/night.gif)
 
-## Highway day performance
+### Highway day performance
 
 ![Highway day demo](outputs/highway.gif)
 
@@ -170,15 +167,10 @@ Useful for analysis and report documentation.
 - **Temporal smoothing** to minimize jitter.
 
 ### **Limitations**
-- No Inverse Perspective Mapping (IPM) yet.  
 - ROI mask is fixed, not adaptive to curves.  
 - HoughLinesP struggles with:  
   - rain, shadows, worn paint, heavy noise.  
-- Confidence model is basic.  
-- Only straight-line modeling (no polynomial curves).
-
-Despite this, the system meets all core LKA baseline requirements.
-
+- Only straight-line modeling 
 ---
 
 # 5 – Build & Run Instructions
